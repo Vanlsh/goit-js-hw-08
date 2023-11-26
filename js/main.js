@@ -1,30 +1,18 @@
 import { images } from "./images.js";
 
 const gallery = document.querySelector("ul.gallery");
-
-images.forEach(({ preview, original, description }) => {
-  gallery.insertAdjacentHTML(
-    "beforeend",
-    `<li class="gallery-item">
-        <a class="gallery-link" href="${original}">
-            <img
-              class="gallery-image"
-              src="${preview}"
-              data-source="${original}"
-              alt="${description}"
-            />
-        </a>
-    </li>`
-  );
-});
-
-const linksToImages = document.querySelectorAll("a.gallery-link");
-
-linksToImages.forEach((link) => {
-  link.addEventListener("click", (e) => e.preventDefault());
-});
+gallery.innerHTML = images
+  .map(({ preview, original, description }) => {
+    return `<li class="gallery-item">
+                <a class="gallery-link" href="${original}">
+                    <img class="gallery-image" src="${preview}" data-source="${original}" alt="${description}"/>
+                </a>
+            </li>`;
+  })
+  .join("");
 
 const openFullImage = (event) => {
+  event.preventDefault();
   const { source } = event.target.dataset;
   if (!source) return;
   const closeByEscape = (e) => {
@@ -33,12 +21,10 @@ const openFullImage = (event) => {
   const instance = basicLightbox.create(
     `<img class="modal-img" src="${source}" width="1112" height="640"/>`,
     {
-      onClose: () => {
-        document.removeEventListener("keydown", closeByEscape);
-      },
+      onShow: () => document.addEventListener("keydown", closeByEscape),
+      onClose: () => document.removeEventListener("keydown", closeByEscape),
     }
   );
-  document.addEventListener("keydown", closeByEscape);
   instance.show();
 };
 
